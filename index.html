@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloWiz!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+
+    <!-- Floating title at the top -->
+    <div id="floating-title">Flo the Wizard</div>
+
+    <!-- Wizard buttons positioned evenly around the screen -->
+    <div class="wizard-buttons">
+        <button class="wizard-btn">Who am I?</button>
+        <button class="wizard-btn" href="https://github.com/sneetsnart420">Programming Projects</button>
+        <button class="wizard-btn" href="/CCBA/">Cookie Clicker Stuff</button>
+        <button class="wizard-btn">Contact</button>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 Flo the Wizard</p>
+    </footer>
+
+    <!-- Three.js scene -->
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.168.0/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.168.0/examples/jsm/"
+          }
+        }
+    </script>
+
+    <script type="module" src="main.js"></script>
+
+</body>
+</html>
