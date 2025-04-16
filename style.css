@@ -1,111 +1,129 @@
-/* Container for buttons positioned dynamically */
-.wizard-buttons {
+/* Background effect */
+body {
+    background: linear-gradient(to bottom right, #000000, #0a0a0a);
+    color: #33ff33;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.01),
+        rgba(255, 255, 255, 0.01) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    background-size: 100% 2px;
+    animation: backgroundFlicker 6s infinite linear;
+}
+
+/* Flicker effect */
+@keyframes backgroundFlicker {
+    0%, 100% {
+        background-color: #000;
+    }
+    50% {
+        background-color: #050505;
+    }
+}
+
+.terminal-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
     position: relative;
-    display: grid;
-    height: 100vh;
-    width: 100vw;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    justify-items: center;
-    align-items: center;
-    gap: 40px; /* Adds space between buttons */
-    z-index: 2;
-    padding: 40px;
-    box-sizing: border-box;
 }
 
-/* Floating title at the top, responsive */
-#floating-title {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: clamp(24px, 6vw, 48px); /* Responsive font size */
-    font-family: 'Merriweather', serif;
-    color: #ffffff;
-    text-shadow: 0 0 20px rgba(128, 0, 255, 0.5);
-    z-index: 3;
-    animation: floatTitle 2s infinite ease-in-out;
+.terminal-window {
+    background: #0c0c0c;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow:
+        0 0 15px rgba(0, 255, 0, 0.2),
+        inset 0 0 10px rgba(0, 255, 0, 0.1);
+    min-height: 80vh;
+    overflow-y: auto;
+    position: relative;
 }
 
-/* Style for individual buttons */
-.wizard-btn {
-    width: clamp(100px, 30vw, 300px); /* Responsive width based on viewport */
-    height: clamp(40px, 8vh, 100px); /* Responsive height based on viewport */
-    font-size: clamp(16px, 2.5vw, 24px); /* Responsive text size */
-    padding: 10px;
-    background: #3e1e68;
-    border: none;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 5px;
-    box-shadow: 0 0 20px rgba(128, 0, 255, 0.5);
-    font-family: 'Merriweather', serif;
-    animation: float 2s infinite ease-in-out;
+/* Glowing terminal text */
+.terminal-output p {
+    margin: 5px 0;
+    white-space: pre-wrap;
+    text-shadow: 0 0 4px #00ff00;
+}
+
+/* Input */
+.terminal-input {
     display: flex;
-    justify-content: center;
     align-items: center;
-    text-align: center;
+    margin-top: 10px;
 }
 
-/* Differentiating float intervals for each button */
-.wizard-btn:nth-child(1) {
-    animation-duration: 2.5s;
-}
-.wizard-btn:nth-child(2) {
-    animation-duration: 3s;
-}
-.wizard-btn:nth-child(3) {
-    animation-duration: 2.7s;
-}
-.wizard-btn:nth-child(4) {
-    animation-duration: 3.2s;
+.prompt {
+    margin-right: 5px;
+    color: #00ff88;
+    text-shadow: 0 0 6px #00ff88, 0 0 10px #00ffaa;
 }
 
-/* Hover effect */
-.wizard-btn:hover {
-    background: #541e8d;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
-    transform: translateY(-5px) rotate(3deg);
-}
-
-/* Keyframe for button floating animation */
-@keyframes float {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0); }
-}
-
-/* Title floating animation */
-@keyframes floatTitle {
-    0% { transform: translate(-50%, 0); }
-    50% { transform: translate(-50%, -10px); }
-    100% { transform: translate(-50%, 0); }
-}
-
-/* Footer stays at the bottom, responsive */
-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+#command-line {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1em;
+    outline: none;
     width: 100%;
-    padding: 5px;
-    text-align: center;
-    background-color: #3e1e68;
-    color: white;
-    font-family: 'Merriweather', serif;
-    box-shadow: 0 -5px 20px rgba(128, 0, 255, 0.5);
-    z-index:1;
+    caret-color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
 }
 
-/* Responsive canvas styling to ensure it sits behind everything */
-canvas {
-    z-index: 0;
-    position: absolute;
+/* Matrix overlay */
+#matrix-canvas {
+    position: fixed;
     top: 0;
     left: 0;
+    display: none;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    background: black;
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.cmd {
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+/* Inline buttons */
+.inline-btn {
+    color: #0f0;
+    background: none;
+    border: none;
+    font-family: monospace;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 0.5em;
+    text-shadow: 0 0 3px #0f0;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+.inline-btn:hover {
+    color: #ff0;
+    text-shadow: 0 0 6px #ff0;
+}
+
+/* Scrollbar styling (optional) */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #111;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #0f0;
+    border-radius: 4px;
+    box-shadow: 0 0 5px #0f0;
 }
