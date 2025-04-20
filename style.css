@@ -1,4 +1,4 @@
-/* Background effect */
+
 body {
     background: linear-gradient(to bottom right, #000000, #0a0a0a);
     color: #33ff33;
@@ -17,7 +17,6 @@ body {
     animation: backgroundFlicker 6s infinite linear;
 }
 
-/* Flicker effect */
 @keyframes backgroundFlicker {
     0%, 100% {
         background-color: #000;
@@ -46,14 +45,12 @@ body {
     position: relative;
 }
 
-/* Glowing terminal text */
 .terminal-output p {
     margin: 5px 0;
     white-space: pre-wrap;
     text-shadow: 0 0 4px #00ff00;
 }
 
-/* Input */
 .terminal-input {
     display: flex;
     align-items: center;
@@ -78,7 +75,6 @@ body {
     text-shadow: 0 0 5px #00ff00;
 }
 
-/* Matrix overlay */
 #matrix-canvas {
     position: fixed;
     top: 0;
@@ -97,7 +93,10 @@ body {
     text-shadow: 0 0 5px #00ffff;
 }
 
-/* Inline buttons */
+.red {
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+}
 .inline-btn {
     color: #0f0;
     background: none;
@@ -115,7 +114,6 @@ body {
     text-shadow: 0 0 6px #ff0;
 }
 
-/* Scrollbar styling (optional) */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -126,4 +124,12 @@ body {
     background-color: #0f0;
     border-radius: 4px;
     box-shadow: 0 0 5px #0f0;
+}
+
+.locked {
+    opacity: 0.5;
+}
+
+.g { 
+    color: #9DD794;
 }
