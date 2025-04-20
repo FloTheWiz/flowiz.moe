@@ -4,19 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="flowiz.moe — Flo the Wizard" />
-  <title>Flo</title>
-  
-  <!-- Optional: Favicon -->
+  <title>Flowiz.moe</title>
   <link rel="icon" type="image/ico" href="/favicon.ico" />
-  
-  <!-- Fonts (Optional, if you use custom fonts) -->
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
+    <div id="drive-ui" class="dim" style="margin-top:10px;">
+        <span class="cmd">Drive</span>: <span id="drive-used">0B</span> / <span id="drive-capacity">100MB</span>
+        <div style="background:#222;height:10px;width:100%;border-radius:5px;margin-top:2px;">
+          <div id="drive-bar" style="background:#0f0;height:100%;width:0%;border-radius:5px;"></div>
+        </div>
+      </div>
   <div class="terminal-container">
     <div class="terminal-window">
       <canvas id="matrix-canvas"></canvas>
@@ -30,7 +29,23 @@
     </div>
   </div>
   <script src="main.js"></script>
-  <!-- I can see my house from down here :3 -->
-  <!-- Hello to my friends from Lazy Devs and Dashnet :) -->
+
+<!--
+  O                                                     O
+  0                                                     0
+__O_____________________________________________________O
+ /|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\/|\
+ |||                                                   |||
+ |||    I can see my house from down here :3           |||
+ ||| Hello to my friends from Lazy Devs and Dashnet :) |||
+ |||                                                   |||
+ \|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/
+  -                                                     -
+  
+  
+                website by flo, the wizard              
+                if you couldn't tell :P
+     
+    -->
 </body>
 </html>
