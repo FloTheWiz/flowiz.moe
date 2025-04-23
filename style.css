@@ -125,7 +125,9 @@ body {
     border-radius: 4px;
     box-shadow: 0 0 5px #0f0;
 }
-
+.dim {
+    opacity: 0.9;
+}
 .locked {
     opacity: 0.5;
 }
