@@ -20,6 +20,18 @@ flowiz.moe main file - Flo the Wizard
 |    You have been warned   |
 |VVVVVVVVVVVVVVVVVVVVVVVVVVV|
 */
+CREDITS = `
+This website is made and maintained by <span class="cmd">Florence the Wizard.</span>
+Contact is <span class="g">@f.l.0</span> on discord.
+Special thanks to my partner, <span class="cmd">Ibble</span> and our dog, <span class="cmd">Millie</span>. 
+Thank you and love to my friends at <span class="cmd">Lazy Devs</span> and <span class="cmd">Dashnet Forums</span>.
+And thank <span class="cmd">You</span>, for being brave enough to explore code!
+
+<span class="cmd">I love you all! :)</span>
+
+`
+VERSION = "0.1.3"
+VERSION_STR = "Barely getting started."
 
 function formatBits(bits) {
   // MMMMMMM Delicious. 
@@ -183,6 +195,16 @@ const achievements = [
     },
   },
   {
+    id: "sudo",
+    name: "Super User Mode",
+    desc: "Root access granted. It's lonely up here.\n<span class='cmd'>(+32 bits)</span>",
+    hint: "What if you were root *and* used sudo?",
+    check: () => 1===2,
+    reward: () => {
+      gameState.bits += 32;
+    }
+  },
+  {
     id: "who",
     name: "My name is...",
     desc: "Chika Chika Slim Shady?\n<span class='cmd'>(+16 bits)</span>",
@@ -257,7 +279,47 @@ function InputCommand(input) {
 }
  
 // 82 fucking lines in. 
+// oh how the times change (270)
+/// COMMAND FUNCTIONALITY
+//
+/*
+
+               _     __,..---""-._                 ';-,
+        ,    _/_),-"`             '-.                `\\
+       \|.-"`    -_)                 '.                ||
+       /`   a   ,                      \              .'/
+       '.___,__/                 .-'    \_        _.-'.'
+          |\  \      \         /`        _`""""""`_.-'
+             _/;--._, >        |   --.__/ `""""""`
+           (((-'  __//`'-......-;\      )
+                (((-'       __//  '--. /
+                          (((-'    __//
+                                 (((-'
+
+
+
+*/
 $(document).ready(function () {
+  const commands = {
+    help: `
+  Available commands:
+  - help             Show this help menu
+  - ls               List files
+  - cat [file]       View file contents
+  - adduser [name]   Create a new user
+  - ??????????       ?????????????????????
+  - clear            Clear the terminal
+  - reset            Clear website, also save
+  - sudo             owo
+  - matrix           Find out :)
+          `,
+    sudo: `Permission denied: You are not worthy.\n(Hint: You're not root!)`,
+    su: `Welcome home, Admin.`,
+    shop: `Use <span class="cmd">buy [index]</span> to purchase a generator.\nGenerators create data every second.`,
+
+  };
+
+
   function saveState() { // This doesn't NEED to be in this function
     // Could be a modular design based on keys etc but this keeps order.
     localStorage.setItem("userFiles", JSON.stringify(userFiles));
@@ -315,8 +377,24 @@ $(document).ready(function () {
     console.log("Starting game loop");
     gameRunning = true;
     $("#drive-ui").css("opacity", 1);
-
-    printResponse("<span class='red'>V1RU5</span> booting up...\nDo <span class='cmd'>'stats'</span> to see your progress.");
+    commands.help = `
+    Available commands:
+  - help             Show this help menu
+  - ls               List files
+  - cat [file]       View file contents
+  - adduser [name]   Create a new user
+  - ??????????       ?????????????????????
+  - clear            Clear the terminal
+  - reset            Clear website, also cookies
+  - sudo             owo
+  - matrix           Find out :)
+  
+  - stats            See V1RU5 stats.
+  - shop             See the shop  
+  - buy [index]      Buy a generator
+  - ach              See Achievements
+    `
+    printResponse("<span class='red'>V1RU5</span> booting up...\nThe <span class='cmd'>help</span> command has been updated.");
     requestAnimationFrame(gameLoop);
   }
   let lastTick = Date.now();
@@ -349,23 +427,6 @@ $(document).ready(function () {
   }
   
 
-/// COMMAND FUNCTIONALITY
-//
-/*
-
-               _     __,..---""-._                 ';-,
-        ,    _/_),-"`             '-.                `\\
-       \|.-"`    -_)                 '.                ||
-       /`   a   ,                      \              .'/
-       '.___,__/                 .-'    \_        _.-'.'
-          |\  \      \         /`        _`""""""`_.-'
-             _/;--._, >        |   --.__/ `""""""`
-           (((-'  __//`'-......-;\      )
-                (((-'       __//  '--. /
-                          (((-'    __//
-                                 (((-'
-
-*/
   const $output = $("#terminal-output");
   const $input = $("#command-line");
 
@@ -388,26 +449,10 @@ $(document).ready(function () {
     if (!a || gameState.achievements[id]) return; // already unlocked or doesn't exist
     a.reward();
     gameState.achievements[id] = true;
-    printResponse(`<span class="green">Achievement Unlocked:</span> ${a.name}\n<i>${a.desc}</i>`);
+    printResponse(`Achievement Unlocked: <span class="g">${a.name}\n<i>${a.desc}</i>`);
   }
   
-  const commands = {
-    help: `
-  Available commands:
-  - help             Show this help menu
-  - ls               List files
-  - cat [file]       View file contents
-  - adduser [name]   Create a new user
-  - ??????????       ?????????????????????
-  - clear            Clear the terminal
-  - reset            Clear website, also cookies
-  - sudo             owo
-  - matrix           Find out :)
-          `,
-    sudo: `Permission denied: You are not worthy.\n(Hint: You're not root!)`,
-    su: `Welcome home, Admin.`,
-    shop: `Use <span class="cmd">buy [index]</span> to purchase a generator.\nGenerators create infection data every second.`,
-  };
+
 
   function printResponse(text) {
     const lines = text.trim().split("\n");
@@ -433,7 +478,7 @@ $(document).ready(function () {
     helpTimeout = setTimeout(() => {
       if (!hasUserTyped) {
         printResponse(
-          `H-hey there, looks like you're uh having some trouble.<br>You can just start typing... Look, here's a help command.`,
+          `<span class="dim">H-hey there, looks like you're uh having some trouble.<br>You can just start typing... Look, here's a help command.</span>`,
         );
         printResponse(commands.help);
         startBoredomLoop();
@@ -474,11 +519,12 @@ $(document).ready(function () {
     $output.append(
       `<p><span class="prompt"><span class="cmd">${user}</span>@flowiz:~$</span> ${$("<div>").text(input).html()}</p>`,
     );
-    
+    // this... is a monster of a switch statement. (⇀‸↼‶)⊃━☆ﾟ.*･｡ﾟ 
     switch (command) {
       case "clear":
         $output.empty();
         break;
+
       case "ls":
         const files = getUserFiles();
         const maxNameLength = Math.max(
@@ -524,6 +570,16 @@ $(document).ready(function () {
         }
 
         //saveState();
+        break;
+
+      case "sudo":
+        if (user === "root") { 
+          unlockAchievement("sudo")
+          printResponse("Oh no...")
+        }
+        else {
+          printResponse(commands.sudo)
+        }
         break;
 
       case "whoami":
@@ -626,6 +682,7 @@ $(document).ready(function () {
       
         printResponse(`Purchased <span class="cmd">${gen.name}</span>!`);
         break;
+
       case "debug":
         gameState.bits += 5000;
         updateSecretFileDisplay();
@@ -659,9 +716,28 @@ $(document).ready(function () {
         }
         break;
 
-
+      // bants 
       case "??????????":
         printResponse("???");
+        break;
+
+      case "tilted":
+      case "pinball":
+        printResponse("<a href='https://flowiz.moe/tilted'>https://flowiz.moe/tilted</a>");
+        break;
+      case "awa":
+        printResponse("♡＾▽＾♡<span class='g'>awa awa!</span>");
+        break;
+
+      case "author":
+      case "owner":
+      case "credits":
+        printResponse(CREDITS);
+        break;
+      
+      case "version":
+      case "ver":
+        printResponse(`Version: <span class="red">${VERSION}:"${VERSION_STR}"</span>`);
         break;
       case "":
         printResponse("\n");
