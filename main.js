@@ -22,7 +22,7 @@ flowiz.moe main file - Flo the Wizard
 */
 CREDITS = `
 This website is made and maintained by <span class="cmd">Florence the Wizard.</span>
-Contact is <span class="g">@f.l.0</span> on discord.
+Contact is <span class="g">@f.l.<span class="red">0</span> </span>on discord.
 Special thanks to my partner, <span class="cmd">Ibble</span> and our dog, <span class="cmd">Millie</span>. 
 Thank you and love to my friends at <span class="cmd">Lazy Devs</span> and <span class="cmd">Dashnet Forums</span>.
 And thank <span class="cmd">You</span>, for being brave enough to explore code!
@@ -33,12 +33,33 @@ And thank <span class="cmd">You</span>, for being brave enough to explore code!
 VERSION = "0.1.3"
 VERSION_STR = "Barely getting started."
 
+
+
+CHANGELOG = [
+  `0.1.0: Initial-
+    - Added Base commands, like su, cat, ls, etc.
+    - Added support for files
+    - Added some cool matrix rain :)
+  `,
+  `0.1.1: 
+    - Added Bits and a drive counter.
+    - Added some new commands, such as whoami and start`,
+  `0.1.2:
+    - Added Generators, and the first of the achievements.`,
+  `0.1.3:
+    - 3 New Achievements
+    - Some new commands, some meme ones
+    - Debug menu`,
+  `Planned: 
+    - More generators
+    - More content ;3`
+]
+
 function formatBits(bits) {
   // MMMMMMM Delicious. 
   const units = ["b", "B", "KB", "MB", "GB", "TB", "PB"];
   let value = bits;
   let index = 0;
-  console.log(bits, index);
   while (
     (index === 0 && value >= 8) ||
     (index > 0 && value >= 1024 && index < units.length - 1)
@@ -46,7 +67,6 @@ function formatBits(bits) {
     value = index === 0 ? value / 8 : value / 1024;
     index++;
   }
-  console.log(value, units[index]);
   return `${value.toFixed(2)} ${units[index]}`;
 }
 function updateDriveUI() {
@@ -65,10 +85,12 @@ function updateDriveUI() {
 }
 
 let hasUserTyped = false;
+let systemBored = false
 let user = "guest";
 let matrixActive = false;
 let gameRunning = false;
-let preemptive = 0;
+let timeOpen = 0;
+let debug = false 
 
 let gameState = {
   bitsPerSecond: 0, 
@@ -79,6 +101,78 @@ let gameState = {
 };
 
 
+
+const prestige_data = {
+  DIGITAL : {
+
+  }
+
+}
+function getDefaultStats() {
+  return {
+    totalCommands: 0,
+    timeActive: 0,
+    filesCreated: 0,
+    errorsTriggered: 0,
+    usersCreated: Object.keys(userFiles).length > 2 ? 1 : 0, 
+
+  };
+}
+function countAllFiles() {
+  let total = 0;
+  for (const user in userFiles) {
+    total += userFiles[user].length;
+  }
+  return total;
+}
+function getGeneratorRate(generator) {
+  // Ensure we have base values
+  let rate = generator.rate
+
+  // Skip scaling if stats isn't initialized yet
+  if (!gameState.stats) return rate;
+  
+  // Handle generators without scaling (backwards compatibility)
+  if (!generator.scaling) return rate;
+  
+  // Get multiplier safely
+  const multiplier = generator.scaling.multiplier || 0;
+  
+  switch(generator.scaling.type) {
+    case "commandCount":
+      rate += (gameState.stats.totalCommands || 0) * multiplier;
+      break;
+    case "timeActive":
+      rate += (gameState.stats.timeActive || 0) * multiplier;
+      break;
+    case "fileCount":
+      rate += (gameState.stats.filesCreated || 0) * multiplier;
+      break;
+    case "errorCount":
+      rate += (gameState.stats.errorsTriggered || 0) * multiplier;
+      break;
+    case "userCount":
+      rate += (Object.keys(userFiles).length > 2 ? 1 : 0) * multiplier;
+      break;
+    default:
+      console.warn(`Unknown scaling type: ${generator.scaling.type}`);
+      break;
+  }
+  
+  return rate;
+}
+
+function calculateBPS() {
+  if (!gameState.generators || gameState.generators.length === 0) {
+    return 0;
+  }
+
+  return gameState.generators.reduce((sum, gen) => {
+    const rate = getGeneratorRate(gen);
+    return sum + (isNaN(rate) ? 0 : rate); // Safeguard against NaN
+  }, 0);
+}
+
 // At the moment a bit boring. 
 // Maybe one that grows over time?
 // Per commands? 
@@ -88,19 +182,27 @@ const fileGenerators = [
     name: "log.dat",
     rate: 1, 
     cost: 20,
+    scaling: {
+      type: "commandCount",
+      multiplier: 0.02
+    },
     desc: [
       'An unassuming log file, quietly collecting keystrokes since 1997.',
       'A blank file, supposedly.',
-      'Contains exactly 1 line: "Help".'
+      'Contains exactly <span class="red">1</span> line: "Help".'
     ]
   },
   {
     name: "temp.sys",
     rate: 8,
     cost: 150,
+    scaling: {
+      type: "timeActive",
+      multiplier: 0.0001
+    },
     desc: [
       'Definitely not temporary.',
-      'Scheduled for deletion... since 2007.',
+      'Scheduled for deletion... since <span class="red">2007</span>.',
       'Last seen merging with the kernel',
       'Why does a temporary file need root access?',
       'Running in the background. Forever.'
@@ -110,6 +212,10 @@ const fileGenerators = [
     name: "tracker.bak",
     rate: 64,
     cost: 1000,
+    scaling: {
+      type: "fileCount",
+      multiplier: 0.001
+    },
     desc: [
       'Backed up. Tracked. Repeated.',
       'It\'s watching your cursor right now.',
@@ -120,14 +226,36 @@ const fileGenerators = [
       'One Byte short of sanity'
     ]
   },
+  {
+    name: "error.log",
+    rate: 128,
+    cost: 2000,
+    scaling: {
+      type: "errorCount",
+      multiplier: 0.02
+    },
+    desc: []
+  },
+  {
+    name: "user.db",
+    rate: 512,
+    cost: 5000,
+    scaling: {
+      type: "userCount",
+      multiplier: 0.5
+    },
+    desc: []
+  }
 ];
 
-
+function getTranslation(key) {
+  return 
+}
 const achievements = [
   {
     id: "root",
-    name: "Become Root",
-    desc: "Despite all odds. You made it.\n<span class='cmd'>(+10 bits)</span>",
+    name: "83C0M3 R00T.",
+    desc: "Despite all odds. You made it.\n<span class='cmd'>(+<span class='red'>10</span> bits)</span>",
     hint: "Flo thought su stood for \"Super User\".",
     check: () => user === "root",
     reward: () => {
@@ -136,8 +264,8 @@ const achievements = [
   },
   {
     id: "matrix",
-    name: "Enter The Matrix",
-    desc: "Red pill. Blue pill. <span class='cmd'>buffer overflow</span>.\n<span class='cmd'>(+16 bits)</span>",
+    name: "3NT3R TH3 M4TR1X.",
+    desc: "Red pill. Blue pill. <span class='cmd'>buffer overflow</span>.\n<span class='cmd'>(+<span class='red'>16</span> bits)</span>",
     hint: "This one is in the help command.",
     check: () => matrixActive === true,
     reward: () => {
@@ -146,8 +274,8 @@ const achievements = [
   },
   {
     id: "start",
-    name: "Game time started.",
-    desc: `Holy shit you did it.\n<span class='cmd'>(+16 bits)</span>`,
+    name: "G4M3 T1M3 5T4RT3D.",
+    desc: `what h4v3 y0u d0n3?.\n<span class='cmd'>(+16 bits)</span>`,
     hint: "There's like a million ways to do this.",
     check: () => gameRunning === true,
     reward: () => {
@@ -156,10 +284,10 @@ const achievements = [
   },
   {
     id: "boredom",
-    name: "Hello?",
+    name: "H3ll0?",
     desc: "Trigger a bored message. Someone’s watching.\n<span class='cmd'>(+128 bits)</span>",
     hint: "You don't have to do anything.",
-    check: () => gameState.achievements["boredom"] !== true && hasUserTyped === false,
+    check: () => 0,
     reward: () => {
       gameState.bits += 128
       
@@ -167,7 +295,7 @@ const achievements = [
   },
   {
     id: "overflow",
-    name: "Bit Overflow",
+    name: "81T 0V3RFL0W",
     desc: "You filled the drive.\nHope you like <i>corruption</i>.\n(Unlocks: <span class='cmd'>Prestiging</span>)",
     hint: "... What drive?",
     check: () => gameState.bits >= gameState.driveCapacity,
@@ -177,7 +305,7 @@ const achievements = [
   },
   {
     id: "firstbuy",
-    name: "Impulse Buyer",
+    name: "TR1CKL3 D0WN 3C0N0M1C5.",
     desc: "You bought something.\nCapitalism wins again.",
     hint: "See if you can afford anything in the shop.",
     check: () => gameState.generators.length > 0,
@@ -186,7 +314,7 @@ const achievements = [
 
   {
     id: "adduser",
-    name: "Welcome, User",
+    name: "W3LC0M3 T0 TH3 M4CH1N3",
     desc: "You added a new user.\nHope they’re not watching.\n<span class='cmd'>(+16 bits)</span>",
     hint: "I wonder what the command to add another user might be.",
     check: () => Object.keys(userFiles).length > 2,
@@ -196,24 +324,42 @@ const achievements = [
   },
   {
     id: "sudo",
-    name: "Super User Mode",
+    name: "5UP3R US3R.",
     desc: "Root access granted. It's lonely up here.\n<span class='cmd'>(+32 bits)</span>",
     hint: "What if you were root *and* used sudo?",
-    check: () => 1===2,
+    check: () => 0,
     reward: () => {
       gameState.bits += 32;
     }
   },
   {
     id: "who",
-    name: "My name is...",
+    name: "MY N4M3 15...",
     desc: "Chika Chika Slim Shady?\n<span class='cmd'>(+16 bits)</span>",
     hint: "Who are you?",
-    check: () => 1===2,
+    check: () => 0,
     reward: () => {
       gameState.bits += 16
     }
   },
+
+  // Shadows uwu
+  {
+    id: "debug",  // 1.1.3
+    name: "I ruined it for myself!",
+    desc: "Accessed the Debug menu.",
+    hint: "?????",
+    check: () => debug === true,
+    reward: () => 0
+  },
+  {
+    id: "lucky", //1.1.3
+    name: "Extraordinarily Lucky",
+    desc: "1 in 100 Trillion!",
+    hint: "?????",
+    check: () => (Math.random() * 100000000000000 < 2),
+    reward: () => 0
+  }
 ];
 
 
@@ -328,31 +474,45 @@ $(document).ready(function () {
     localStorage.setItem("lastPlayedTime", Date.now());
     console.log("Saved state");
   }
-  
   function loadState() {
     const storedFiles = localStorage.getItem("userFiles");
     const storedUser = localStorage.getItem("currentUser");
     const storedGame = localStorage.getItem("gameState");
     const lastPlayed = parseInt(localStorage.getItem("lastPlayedTime") || 0);
+
+    if (!gameState.stats) {
+      gameState.stats = getDefaultStats();    
+    // For timeActive, we can't recover it, so leave at 0
+    } else {
+      // Ensure all stat fields exist (for future additions)
+      const defaultStats = getDefaultStats();
+      for (const key in defaultStats) {
+        if (gameState.stats[key] === undefined) {
+          gameState.stats[key] = defaultStats[key];
+        }
+      }
+    }
   
     if (storedFiles) userFiles = JSON.parse(storedFiles);
     if (storedUser) user = storedUser;
     if (storedGame) gameState = JSON.parse(storedGame);
     if (storedGame) console.log("Found a Save. Loading.")
+        // If we found save data, begin game loop
+ 
     // Calculate offline bits earned
-    if (lastPlayed && gameState.bitsPerSecond) { // However....
+    if (storedGame) { // However....
 
       const now = Date.now();
       const secondsOffline = Math.floor((now - lastPlayed) / 1000);
-      const earnedOffline = secondsOffline * gameState.bitsPerSecond;
+      const earnedOffline = secondsOffline * gameState.bitsPerSecond
       gameState.bits += earnedOffline;
-      
+      if (earnedOffline > 0.9) {
       printResponse(
         `<i class="dim">Recovered <span class="cmd">${formatBits(earnedOffline)}</span> while you were gone...</i>`
       );
-
-      startGameLoop();
-    }
+      }
+        startGameLoop();
+      }
   
     $(".terminal-input .prompt").html(
       `<span class="cmd">${user}</span>@flowiz:~$`
@@ -377,6 +537,7 @@ $(document).ready(function () {
     console.log("Starting game loop");
     gameRunning = true;
     $("#drive-ui").css("opacity", 1);
+    
     commands.help = `
     Available commands:
   - help             Show this help menu
@@ -398,15 +559,15 @@ $(document).ready(function () {
     requestAnimationFrame(gameLoop);
   }
   let lastTick = Date.now();
-
+ 
   function gameLoop() {
     if (!gameRunning) return;
-  
     const now = Date.now();
     const delta = (now - lastTick) / 1000;
   
     if (delta >= 1) {
-      const bps = gameState.generators.reduce((sum, g) => sum + g.rate, 0);
+
+      const bps = calculateBPS()
       gameState.bitsPerSecond = bps;
   
       const added = Math.min(bps * delta, gameState.driveCapacity - gameState.bits);
@@ -414,13 +575,25 @@ $(document).ready(function () {
   
       if (added > 0) {
         updateSecretFileDisplay();
-        updateDriveUI();
+;
+        $("#drive-used").addClass("bit-flash");
+        setTimeout(() => $("#drive-used").removeClass("bit-flash"), 500);
 
       }
-  
+      updateDriveUI()
       lastTick = now;
+
+      
       checkAchievements();
-      saveState();
+      // Update stats 
+      timeOpen ++
+      if (gameState.stats) {
+        gameState.stats.timeActive = timeOpen
+      }
+      // Use it for autosaving every roughly 5-10 mins
+      if (timeOpen % 300 == 0) { 
+        saveState();
+      }
     }
   
     requestAnimationFrame(gameLoop);
@@ -441,6 +614,7 @@ $(document).ready(function () {
         gameState.achievements[ach.id] = true;
         printResponse(`Achievement unlocked: <span class="g">${ach.name}</span>\n<i>${ach.desc}</i>`);
         if (ach.reward) ach.reward();
+        saveState()
       }
     });
   }
@@ -450,18 +624,33 @@ $(document).ready(function () {
     a.reward();
     gameState.achievements[id] = true;
     printResponse(`Achievement Unlocked: <span class="g">${a.name}\n<i>${a.desc}</i>`);
+    saveState()
   }
   
 
 
   function printResponse(text) {
-    const lines = text.trim().split("\n");
+    // Only modify text parts that aren't HTML tags
+    const redText = text.replace(
+      /(^|>)([^<]+)(<|$)/g,
+      (match, prefix, content, suffix) => {
+        const redContent = content.replace(
+          /(-?\d[\d,.]*)([a-zA-Z%]*)/g,
+          '<span class="red">$1</span>$2'
+        );
+        return prefix + redContent + suffix;
+      }
+    );
+    
+    const lines = redText.trim().split("\n");
     for (const line of lines) {
-      $output.append(`<p>${line}</p>`);
+      let k = $output.append(`<p>${line}</p>`);
     }
+    const element = document.getElementById("command-line");
+    element.scrollIntoView(false);
+
   }
-  // If we found save data, begin game loop
- 
+
 
   function updateSecretFileDisplay() {
     const files = getUserFiles();
@@ -481,6 +670,7 @@ $(document).ready(function () {
           `<span class="dim">H-hey there, looks like you're uh having some trouble.<br>You can just start typing... Look, here's a help command.</span>`,
         );
         printResponse(commands.help);
+        systemBored = true;
         startBoredomLoop();
       }
     }, 10000);
@@ -493,9 +683,10 @@ $(document).ready(function () {
         if (!hasUserTyped) {
           const msg = bored[Math.floor(Math.random() * bored.length)];
           printResponse(`<i class="dim">${msg}</i>`);
-        }
+        if (systemBored) {
         unlockAchievement("boredom")
-      },
+        }
+      }},
       5 * 60 * 1000,
     );
   }
@@ -520,6 +711,9 @@ $(document).ready(function () {
       `<p><span class="prompt"><span class="cmd">${user}</span>@flowiz:~$</span> ${$("<div>").text(input).html()}</p>`,
     );
     // this... is a monster of a switch statement. (⇀‸↼‶)⊃━☆ﾟ.*･｡ﾟ 
+    if (gameState.stats) {
+      gameState.stats.totalCommands ++ 
+    }
     switch (command) {
       case "clear":
         $output.empty();
@@ -530,12 +724,14 @@ $(document).ready(function () {
         const maxNameLength = Math.max(
           ...files.map((file) => file.name.length),
         );
-        const listing = files
+        let listing = files
           .map((file) => {
             const paddedName = file.name.padEnd(maxNameLength + 6, " ");
             return `<span class="cmd">${paddedName}</span>${file.size}`;
           })
           .join("\n");
+
+
         printResponse(`Do <span class="cmd">cat [file]</span> to read a file.`);
         printResponse(listing);
         break;
@@ -578,7 +774,14 @@ $(document).ready(function () {
           printResponse("Oh no...")
         }
         else {
-          printResponse(commands.sudo)
+          const failures = [
+            `sudo: luser ${user} not in sudoers`,
+            `[sudo] password for ${user}: [hint: try 'su']`,
+            `Permission denied (audible laugh from terminal)`,
+
+          ];
+          printResponse(failures[Math.floor(Math.random()*failures.length)])
+
         }
         break;
 
@@ -612,6 +815,8 @@ $(document).ready(function () {
 
         if (!gameRunning){
           startGameLoop();
+        }
+        
           printResponse(`Added user: ${username}`);
           user = username;
           $(".terminal-input .prompt").html(
@@ -621,8 +826,7 @@ $(document).ready(function () {
           userFiles[username] = [
             { name: "secret.txt", text: "<span class='red'>Thank You.</span>", size: "0B" },
           ];
-        
-        }
+        gameState.stats.usersCreated += 1;
         saveState();
         printResponse(`(Saved.)`);
         break;
@@ -641,6 +845,21 @@ $(document).ready(function () {
           printResponse("Pardon?");
           break;
         }
+          else {
+          printResponse(`
+            <u>Game Statistics</u>:
+            Commands executed: ${gameState.stats.totalCommands}
+            Time active: ${Math.floor(gameState.stats.timeActive / 60)} minutes
+            Files created: ${gameState.stats.filesCreated}
+            
+            <u>Generator Rates</u>:
+            ${gameState.generators.map(gen => 
+              `\n-${gen.name}: ${formatBits(getGeneratorRate(gen))}/s ` +
+              `(Base: ${gen.rate}, ` +
+              `Scaling: ${gen.scaling.type} * ${gen.scaling.multiplier})`
+            ).join('<br>')}
+          `);}
+        
         const bitsFormatted = formatBits(gameState.bits);
         const rateFormatted = formatBits(gameState.bitsPerSecond);
         if (gameState.bitsPerSecond === 0) {
@@ -655,7 +874,7 @@ $(document).ready(function () {
         break;
         
       case "shop":
-        printResponse(`<u>Available Generators</u>:`);
+        printResponse(`Do <span class="cmd">buy [index]</span> to purchase\n<u>Available Generators</u>:`);
         fileGenerators.forEach((gen, i) => {
           printResponse(`${i}: <span class="cmd">${gen.name}</span> | Rate: ${gen.rate}B/s | Cost: ${formatBits(gen.cost)}`);
         });
@@ -681,12 +900,10 @@ $(document).ready(function () {
         gen.cost = Math.floor(gen.cost * 1.5);
       
         printResponse(`Purchased <span class="cmd">${gen.name}</span>!`);
+        saveState();
         break;
 
-      case "debug":
-        gameState.bits += 5000;
-        updateSecretFileDisplay();
-        break;
+
       
       case "achievements":
       case "ach":
@@ -726,7 +943,7 @@ $(document).ready(function () {
         printResponse("<a href='https://flowiz.moe/tilted'>https://flowiz.moe/tilted</a>");
         break;
       case "awa":
-        printResponse("♡＾▽＾♡<span class='g'>awa awa!</span>");
+        printResponse("♡＾▽＾♡  <span class='g'>awa awa!</span>");
         break;
 
       case "author":
@@ -737,22 +954,68 @@ $(document).ready(function () {
       
       case "version":
       case "ver":
-        printResponse(`Version: <span class="red">${VERSION}:"${VERSION_STR}"</span>`);
+        printResponse(`Version: <span class="red">${VERSION}</span>-- "${VERSION_STR}"`);
         break;
       case "":
         printResponse("\n");
         break; 
+      case "filestats":
+        const fileCount = countAllFiles();
+        const userCount = Object.keys(userFiles).length;
+        
+        printResponse(`
+          <u>File System Statistics</u>:
+          Total files: ${fileCount}
+          Total users: ${userCount}
+          Files per user:
+          ${Object.keys(userFiles).map(user => 
+            `\n- ${user}: ${userFiles[user].length} files`
+          ).join('<br>\n')}
+        `);
+        break;
+      case "debug":
+        debug = !debug
+        console.log("debug")
+        printResponse(`<span class="red">Debug Menu ${debug? "Activated" : "Deactivated"}</span>`)
+        if (debug) {  
+        printResponse(`Debug Help Menu: 
+        - bitsgobrr        Adds 1000 Bits and doubles your amount.
+        - generatorr       Gives 10 of each generator.
+        - debug            Disables the debug menu
+        `)
+        }
 
+        break;
+        
       case "reset":
         printResponse("Resetting state of website.");
         localStorage.clear();
         location.reload();
         break;
-
+      case "bitsgobrr":
+        if (debug) {
+          gameState.bits += 1000
+          gameState.bits *= 2 
+          printResponse(`Bits: ${String(gameState.bits)}`)
+          break;
+        }
+      case "generatorr":
+        if (debug) {
+          fileGenerators.forEach(gen => {
+            for (let i = 0; i < 10; i++) {
+              gameState.generators.push({ ...gen });
+            }
+          });
+          break;
+        }
       default:
         if (commands[command]) {
           printResponse(commands[command]);
         } else {
+          // Error!!
+          if (gameState.stats) {
+            gameState.stats.errorsTriggered ++
+          }
           printResponse(
             `command not found: ${command}\nType 'help' to see available commands.`,
           );
@@ -792,11 +1055,17 @@ $(document).ready(function () {
     function drawMatrix() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0F0";
+
       ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)];
+        if ("0123456789".search(text) != -1) { 
+          ctx.fillStyle = "#F00"
+        }
+        else {
+          ctx.fillStyle = "#0F0"
+        }
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
@@ -829,7 +1098,7 @@ $(document).ready(function () {
   
 });
 
-console.log("flowiz.moe v0.1.2 - https://flowiz.moe");
+console.log(`flowiz.moe ${VERSION} - https://flowiz.moe`);
 console.log(`%c
                                                                   
                 _                      ____                       
