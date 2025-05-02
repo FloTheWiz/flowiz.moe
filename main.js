@@ -41,20 +41,26 @@ CHANGELOG = [
   `,
   `0.1.1: 
     - Added Bits and a drive counter.
-    - Added some new commands, such as whoami and start`,
+    - Added some new commands, such as whoami and start
+  `,
   `0.1.2:
-    - Added Generators, and the first of the achievements.`,
+    - Added Generators, and the first of the achievements.
+  `,
   `0.1.3:
     - 3 New Achievements
     - Some new commands, some meme ones
-    - Debug menu`,
+    - Debug menu
+  `,
   `0.1.4:
     - Added generator scaling 
-    - Added a Casino, with slots, blackjack, roulette, and more`,
-  `Planned: 
+    - Added a Casino, with slots, blackjack, roulette, and more
+  `,
+  `Planned:
     - More generators
-    - More content ;3`
+    - More content ;3
+  `
 ]
+
 
 function calculate_percentage(total, amount) {
   // This shows how lazy I am with functions. 
@@ -109,7 +115,6 @@ function toLeet(text, percentage) {
   indicesToConvert.forEach(index => {
       chars[index] = `<span class="red">${leetMap[chars[index]]}</span>`;
   });
-  console.log("Output: " + chars.join(''))
   return chars.join('');
 }
 
