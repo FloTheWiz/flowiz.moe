@@ -1,7 +1,7 @@
 
 body {
     background: linear-gradient(to bottom right, #000000, #0a0a0a);
-    color: #33ff33;
+    color: #3aff33;
     font-family: 'Courier New', monospace;
     margin: 0;
     padding: 0;
@@ -31,6 +31,8 @@ body {
     max-width: 900px;
     margin: 0 auto;
     position: relative;
+    max-height: 90vh;
+    overflow-y: scroll;
 }
 
 .terminal-window {
@@ -48,7 +50,7 @@ body {
 .terminal-output p {
     margin: 5px 0;
     white-space: pre-wrap;
-    text-shadow: 0 0 4px #00ff00;
+    text-shadow: 0 0 4px #3aff33;
 }
 
 .terminal-input {
@@ -88,17 +90,9 @@ body {
     z-index: 1;
 }
 
-.cmd {
-    color: #00ffff;
-    text-shadow: 0 0 5px #00ffff;
-}
 
-.red {
-    color: #ff0000;
-    text-shadow: 0 0 5px #ff0000;
-}
 .inline-btn {
-    color: #0f0;
+    color: #3aff33;
     background: none;
     border: none;
     font-family: monospace;
@@ -125,13 +119,130 @@ body {
     border-radius: 4px;
     box-shadow: 0 0 5px #0f0;
 }
+
+
 .dim {
     opacity: 0.9;
 }
 .locked {
     opacity: 0.5;
 }
-
 .g { 
     color: #9DD794;
+}
+.cmd {
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+    opacity:0.9;
+}
+
+.red {
+    color: #ff3333;
+    text-shadow: 0 0 5px #ff0000;
+}
+.yellow { color: #ffff00; }
+.cyan { color: #00ffff; }
+.blue { color: #0000ff; }
+
+/* hehe yoink thanks codepen */ 
+.message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #eee;
+    font-size: 80px;
+    white-space: nowrap;
+    font-family: "Share Tech", sans-serif;
+    animation: glitch 1s linear infinite;
+  }
+  
+  @keyframes glitch {
+    2%,
+    64% {
+      transform: translate(-48%, -50%) skew(0deg);
+    }
+    4%,
+    60% {
+      transform: translate(-52%, -50%) skew(0deg);
+    }
+    62% {
+      transform: translate(-50%, -50%) skew(5deg);
+    }
+  }
+  
+  .message::before,
+  .message::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+  }
+  
+  .message::before {
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+    animation: glitchTop 1s linear infinite;
+  }
+  
+  @keyframes glitchTop {
+    2%,
+    64% {
+      transform: translate(-2px, -2px);
+    }
+    4%,
+    60% {
+      transform: translate(2px, -2px);
+    }
+    62% {
+      transform: translate(75px, 1px) skew(-15deg);
+    }
+  }
+  
+  .message::after {
+    clip-path: polygon(0 68%, 100% 68%, 100% 100%, 0 100%);
+    animation: glitchBottom 1s linear infinite;
+  }
+  
+  @keyframes glitchBottom {
+    2%,
+    64% {
+      transform: translate(-2px, 0);
+    }
+    4%,
+    60% {
+      transform: translate(-2px, 0);
+    }
+    62% {
+      transform: translate(-42px, 2px) skew(35deg);
+    }
+  }
+
+
+.bit-flash { 
+  text-shadow:2px 2px 4px rgba(0, 255, 0, 0.9)
+
+}
+
+/* Add to your styles */
+.blink {
+  animation: blink-animation 0.5s steps(2, start) infinite;
+}
+
+@keyframes blink-animation {
+  to { visibility: hidden; }
+}
+
+.orange {
+  color: #ffaa55;
+}
+
+#crash-display {
+  font-weight: bold;
+  border-left: 3px solid #ff5555;
+  padding-left: 10px;
+  margin: 5px 0;
+  transition: all 0.1s;
+}
+
+.terminal-window {
+  transition: transform 0.1s ease-out;
 }
