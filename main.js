@@ -50,8 +50,7 @@ CHANGELOG = [
     - Debug menu`,
   `0.1.4:
     - Added generator scaling 
-    - Added a Casino, with slots, blackjack, roulette, and more
-    `
+    - Added a Casino, with slots, blackjack, roulette, and more`,
   `Planned: 
     - More generators
     - More content ;3`
