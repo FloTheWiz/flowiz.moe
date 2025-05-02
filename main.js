@@ -28,8 +28,8 @@ Thank you and love to my friends at <span class="cmd">Lazy Devs</span> and <span
 And thank <span class="cmd">You</span>, for being brave enough to explore code!
 
 <span class="cmd">I love you all! :)</span>
-
 `
+
 VERSION = "0.1.4"
 VERSION_STR = "Barely getting started."
 
@@ -52,8 +52,9 @@ CHANGELOG = [
     - Debug menu
   `,
   `0.1.4:
-    - Added generator scaling 
-    - Added a Casino, with slots, blackjack, roulette, and more
+    - Added generator scaling
+    - Added gambling games to debug
+    - Added The House
   `,
   `Planned:
     - More generators
@@ -1672,7 +1673,7 @@ function collectBits(x, y) {
   function safetyprintResponse(text) {
     // Like the above function, but without that fancy bullshit. 
     // Because sometimes it gets in the darn way.
-    const lines = redText.trim().split("\n");
+    const lines = text.trim().split("\n");
     for (const line of lines) {
       let k = $output.append(`<p>${line}</p>`);
     }
