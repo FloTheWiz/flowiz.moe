@@ -1,0 +1,7 @@
+{ "welcome": "Welcome to the system, {{user}}!",
+  "command_not_found": "Command not found: {{command}}",
+  "file_not_executable": "{{file}} is not executable",
+  "file_executed": "Executed {{file}}",
+  "secret_file_content": "You weren't supposed to see this...",
+  "secret_file_executed": "System anomaly detected! +100 bits"
+}
